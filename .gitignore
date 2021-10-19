@@ -1,2 +1,2 @@
-./"Práctica 1 - MNIST NN"/.idea/
-./"Práctica 1 - MNIST NN"/data/
+*.idea*
+*data*
