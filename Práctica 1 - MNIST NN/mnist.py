@@ -13,6 +13,7 @@ class Perceptron:
         self.accuracy = []
         self.DIGITS = 10
         self.SIZE = 28
+        self.n = 0.005
 
     def loadDataset(self):
         train = idx2numpy.convert_from_file("data/train-images.idx3-ubyte")
@@ -35,19 +36,6 @@ class Perceptron:
             if arr[i] == 1:
                 return i
         return -1
-
-    # Funcion de Activacion
-    def predict(self, w, x):
-        y_aux = []
-        n = numpy.dot(w, x.reshape(self.SIZE * self.SIZE))
-
-        for i in range(self.DIGITS):
-            if n[i] >= 0:
-                y_aux.append(1)
-            else:
-                y_aux.append(0)
-
-        return y_aux
 
     def saveImage(self, n, size):
         image = Image.fromarray(self.w[n].reshape(self.SIZE, self.SIZE))
@@ -79,7 +67,30 @@ class Perceptron:
         plot.ylabel("Epochs")
         plot.show()
 
-    def perceptron(self, x_train, y_train, epocas, save_image=False, n=0):
+    def derivadaSigmoid(self, n):
+        return n * (1 - n)
+
+    def sigmoid(self, n):
+        return 1 / (1 + numpy.exp(-n))
+
+     # Funcion de Activacion
+    def predict(self, w, x, tipo="softmax"):
+        y_aux = []
+        n = numpy.dot(w, x.reshape(self.SIZE * self.SIZE))
+
+        if tipo == "softmax":
+            for i in range(self.DIGITS):
+                y_aux.append(self.sigmoid(n[i]))
+        else:
+            for i in range(self.DIGITS):
+                if n[i] >= 0:
+                    y_aux.append(1)
+                else:
+                    y_aux.append(0)
+
+        return y_aux
+
+    def perceptron(self, x_train, y_train, epocas, save_image=False, n=0, tipo=""):
         self.w = []
 
         for i in range(self.DIGITS):
@@ -92,12 +103,23 @@ class Perceptron:
                 y_pred = self.predict(self.w, x_i)
 
                 for j in range(self.DIGITS):
-                    if y_pred[j] == 1 and y_i != j:
-                        self.w[j] = self.w[j] - numpy.reshape(x_i, self.SIZE * self.SIZE)
-                    elif y_pred[j] == 0 and y_i == j:
-                        self.w[j] = self.w[j] + numpy.reshape(x_i, self.SIZE * self.SIZE)
-                    elif y_pred[j] == 1 and y_i == j:
-                        accuracy_aux = accuracy_aux + 1
+                    if tipo == "softmax":
+                        z = numpy.dot(self.w, x_i.reshape(self.SIZE * self.SIZE))
+                        y_i_arr = []
+                        for k in range(self.DIGITS):
+                            if k == y_i:
+                                y_i_arr.append(1)
+                            else:
+                                y_i_arr.append(0)
+                        delta_y = self.derivadaSigmoid(z) * (y_pred - y_i_arr)
+                        self.w[j] -= self.n * x_i.reshape(self.DIGITS * self.DIGITS) * delta_y
+                    else:
+                        if y_pred[j] == 1 and y_i != j:
+                            self.w[j] = self.w[j] - numpy.reshape(x_i, self.SIZE * self.SIZE)
+                        elif y_pred[j] == 0 and y_i == j:
+                            self.w[j] = self.w[j] + numpy.reshape(x_i, self.SIZE * self.SIZE)
+                        elif y_pred[j] == 1 and y_i == j:
+                            accuracy_aux = accuracy_aux + 1
 
                 if k % 500 == 0 and (i == 0 or i == epocas) and save_image:
                     self.saveImage(n, size=500)
@@ -118,7 +140,7 @@ if __name__ == "__main__":
     train, train_labels, test, test_labels = perceptron.loadDataset()
 
     # showDigit(0)
-    w = perceptron.perceptron(train, train_labels, epocas=20, save_image=True, n=7)
+    w = perceptron.perceptron(train, train_labels, epocas=1, tipo="softmax", save_image=False, n=7)
 
     #for i in range(epocas):
     #y = perceptron.predict(w, train[i])
