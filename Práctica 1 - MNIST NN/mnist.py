@@ -67,6 +67,10 @@ class Perceptron:
         plot.ylabel("Epochs")
         plot.show()
 
+    def softmax(self, n):
+        e = numpy.exp(n - n.max())
+        return e / numpy.sum(e, axis=0)
+
     def derivadaSigmoid(self, n):
         return n * (1 - n)
 
@@ -99,8 +103,8 @@ class Perceptron:
         for i in range(epocas):
             accuracy_aux = 0
 
-            for x_i, y_i, k in zip(x_train, y_train, range(len(x_train))):
-                y_pred = self.predict(self.w, x_i)
+            for x_i, y_i, l in zip(x_train, y_train, range(len(x_train))):
+                y_pred = self.predict(self.w, x_i, "softmax")
 
                 for j in range(self.DIGITS):
                     if tipo == "softmax":
@@ -111,8 +115,8 @@ class Perceptron:
                                 y_i_arr.append(1)
                             else:
                                 y_i_arr.append(0)
-                        delta_y = self.derivadaSigmoid(z) * (y_pred - y_i_arr)
-                        self.w[j] -= self.n * x_i.reshape(self.DIGITS * self.DIGITS) * delta_y
+                        delta_y = self.softmax(z) * (numpy.array(y_pred) - numpy.array(y_i_arr))
+                        self.w[j] -= self.n * x_i.reshape(self.SIZE * self.SIZE) * delta_y
                     else:
                         if y_pred[j] == 1 and y_i != j:
                             self.w[j] = self.w[j] - numpy.reshape(x_i, self.SIZE * self.SIZE)
@@ -121,7 +125,7 @@ class Perceptron:
                         elif y_pred[j] == 1 and y_i == j:
                             accuracy_aux = accuracy_aux + 1
 
-                if k % 500 == 0 and (i == 0 or i == epocas) and save_image:
+                if l % 500 == 0 and (i == 0 or i == epocas) and save_image:
                     self.saveImage(n, size=500)
 
             accuracy_aux *= 100 / x_train.shape[0]
