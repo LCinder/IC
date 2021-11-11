@@ -98,13 +98,13 @@ class Perceptron:
         self.w = []
 
         for i in range(self.DIGITS):
-            self.w.append(self.inicializarWeights(x_train))
+            self.w.append(self.inicializarWeights(x_train)) #inicializar pesos aleatoriamente, y normalizar!!!!
 
         for i in range(epocas):
             accuracy_aux = 0
 
             for x_i, y_i, l in zip(x_train, y_train, range(len(x_train))):
-                y_pred = self.predict(self.w, x_i, "softmax")
+                y_pred = self.predict(self.w, x_i, "softmax") # aplicar sigmoide mejor
 
                 for j in range(1):
                     if tipo == "softmax":
@@ -114,9 +114,9 @@ class Perceptron:
                             if k == y_i:
                                 y_i_arr.append(1)
                             else:
-                                y_i_arr.append(0)
-                        delta_y = self.derivadaSigmoid(z) * (numpy.array(y_pred) - numpy.array(y_i_arr))
-                        self.w -= self.n * numpy.dot(x_i.reshape(self.SIZE * self.SIZE),  numpy.resize(delta_y, (10, 1)))
+                                y_i_arr.append(0) #derviada para propagar hacia atras y  funcion lineal para propagar hacia adelante
+                        delta_y = self.sigmoid(z) * (numpy.array(y_pred) - numpy.array(y_i_arr))
+                        self.w -= self.n * numpy.resize(numpy.outer(x_i.reshape(self.SIZE * self.SIZE),  numpy.resize(delta_y, (1, 10))), (10, 784))
                     else:
                         if y_pred[j] == 1 and y_i != j:
                             self.w[j] = self.w[j] - numpy.reshape(x_i, self.SIZE * self.SIZE)
