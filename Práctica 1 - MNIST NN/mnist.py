@@ -77,7 +77,7 @@ class Perceptron:
     def sigmoid(self, n):
         return 1 / (1 + numpy.exp(-n))
 
-     # Funcion de Activacion
+    # Funcion de Activacion
     def predict(self, w, x, tipo="softmax"):
         y_aux = []
         n = numpy.dot(w, x.reshape(self.SIZE * self.SIZE))
@@ -106,7 +106,7 @@ class Perceptron:
             for x_i, y_i, l in zip(x_train, y_train, range(len(x_train))):
                 y_pred = self.predict(self.w, x_i, "softmax")
 
-                for j in range(self.DIGITS):
+                for j in range(1):
                     if tipo == "softmax":
                         z = numpy.dot(self.w, x_i.reshape(self.SIZE * self.SIZE))
                         y_i_arr = []
@@ -115,8 +115,8 @@ class Perceptron:
                                 y_i_arr.append(1)
                             else:
                                 y_i_arr.append(0)
-                        delta_y = self.softmax(z) * (numpy.array(y_pred) - numpy.array(y_i_arr))
-                        self.w[j] -= self.n * x_i.reshape(self.SIZE * self.SIZE) * delta_y
+                        delta_y = self.derivadaSigmoid(z) * (numpy.array(y_pred) - numpy.array(y_i_arr))
+                        self.w -= self.n * numpy.dot(x_i.reshape(self.SIZE * self.SIZE),  numpy.resize(delta_y, (10, 1)))
                     else:
                         if y_pred[j] == 1 and y_i != j:
                             self.w[j] = self.w[j] - numpy.reshape(x_i, self.SIZE * self.SIZE)
