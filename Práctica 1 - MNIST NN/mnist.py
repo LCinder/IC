@@ -29,7 +29,7 @@ class Perceptron:
         print("El numero es " + str(train_labels[n]))
 
     def inicializarWeights(self, train):
-        return numpy.zeros(train.shape[1] * train.shape[1])
+        return numpy.random.rand(train.shape[1]) #numpy.zeros(train.shape[1] * train.shape[1])
 
     def obtenerNumero(self, arr):
         for i in range(self.DIGITS):
@@ -99,6 +99,11 @@ class Perceptron:
 
         for i in range(self.DIGITS):
             self.w.append(self.inicializarWeights(x_train)) #inicializar pesos aleatoriamente, y normalizar!!!!
+
+        #Normalizar
+        for l in range(len(self.w)):
+            self.w[l] /= 255
+
 
         for i in range(epocas):
             accuracy_aux = 0
