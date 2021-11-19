@@ -29,7 +29,7 @@ class Perceptron:
         print("El numero es " + str(train_labels[n]))
 
     def inicializarWeights(self, train):
-        return numpy.random.rand(train.shape[1]) #numpy.zeros(train.shape[1] * train.shape[1])
+        return numpy.random.rand(train.shape[1] * train.shape[1]) #numpy.zeros(train.shape[1] * train.shape[1])
 
     def obtenerNumero(self, arr):
         for i in range(self.DIGITS):
@@ -143,7 +143,7 @@ class Perceptron:
 
 
 if __name__ == "__main__":
-    epocas = 50
+    epocas = 5
 
     perceptron = Perceptron()
     train, train_labels, test, test_labels = perceptron.loadDataset()
@@ -151,11 +151,11 @@ if __name__ == "__main__":
     # showDigit(0)
     w = perceptron.perceptron(train, train_labels, epocas=1, tipo="softmax", save_image=False, n=7)
 
-    #for i in range(epocas):
-    #y = perceptron.predict(w, train[i])
-    #y_pred = perceptron.obtenerNumero(y)
-    #print("Para i=" + str(i) + ", el nº es " + str(train_labels[i]) + " y el nº predicho es " + str(y_pred))
+    for i in range(epocas):
+        y = perceptron.predict(w, train[i])
+        y_pred = perceptron.obtenerNumero(y)
+        print("Para i=" + str(i) + ", el nº es " + str(train_labels[i]) + " y el nº predicho es " + str(y_pred))
 
     good = perceptron.test(test, test_labels)
     print("Accurary: " + str(good) + "%")
-    perceptron.plot()
+    #perceptron.plot()
