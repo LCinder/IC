@@ -4,7 +4,7 @@ import matplotlib.pyplot as plot
 from PIL import Image
 import matplotlib.pyplot as plot
 from keras import Input
-from keras.layers import Conv2D, MaxPooling2D, Flatten, Dropout, LSTM
+from keras.layers import Conv2D, MaxPooling2D, Flatten, Dropout, LSTM, SimpleRNN
 from keras.utils.np_utils import to_categorical
 from tensorflow import keras
 from keras.models import Sequential
@@ -228,26 +228,9 @@ def NN(x_train, y_train, x_test, y_test, type):
         ])
     elif type == "rnn":
         model = Sequential([
-            LSTM(2500, activation="relu", input_shape=784),
-            # Para evitar el sobreajuste se eliminan nodos aleatoriamente
+            Input(shape=(28, 28)),
+            SimpleRNN(2500, activation="relu", input_shape=(28, 28)),
             Dropout(0.2),
-            MaxPooling2D(pool_size=(2, 2)),
-            LSTM(2000, activation="relu", input_shape=784),
-            # Para evitar el sobreajuste se eliminan nodos aleatoriamente
-            Dropout(0.2),
-            MaxPooling2D(pool_size=(2, 2)),
-            LSTM(1500, activation="relu", input_shape=784),
-            # Para evitar el sobreajuste se eliminan nodos aleatoriamente
-            Dropout(0.2),
-            MaxPooling2D(pool_size=(2, 2)),
-            LSTM(1000, activation="relu", input_shape=784),
-            # Para evitar el sobreajuste se eliminan nodos aleatoriamente
-            Dropout(0.2),
-            MaxPooling2D(pool_size=(2, 2)),
-            LSTM(500, activation="relu", input_shape=784),
-            # Para evitar el sobreajuste se eliminan nodos aleatoriamente
-            Dropout(0.2),
-            MaxPooling2D(pool_size=(2, 2)),
             Dense(10, activation="softmax")
         ])
 
