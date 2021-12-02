@@ -171,35 +171,49 @@ class MultiLayer:
             grad_v = hidden_output.dot(grad)
 
 
-def plot_results(y_pred, y_test):
+def plot_results(y_pred, y_test, hist):
     seaborn.heatmap(confusion_matrix(numpy.argmax(y_test, 1), numpy.argmax(y_pred, 1)), annot=True)
     plot.xlabel("Valores verdaderos")
-    plot.xlabel("Valores predichos")
+    plot.ylabel("Valores predichos")
+    plot.show()
+
+    print(hist)
+    plot.plot(hist.history["accuracy"])
+    plot.plot(hist.history["val_accuracy"])
+    plot.xlabel("Epoch")
+    plot.ylabel("Accuracy")
+    plot.legend(["Train", "Test"])
     plot.show()
 
 
 def NN(x_train, y_train, x_test, y_test, type):
-
-    if type == "cnn":
+  #############################################
+  # Convolutive NN
+  #############################################
+    if type == "1":
         model = Sequential([
             Input(shape=(28, 28, 1)),
             # Red neuronal convolutiva con mascara 3x3
             # Capa 1
             Conv2D(32, activation="relu", kernel_size=(3, 3), padding="same"),
-            MaxPooling2D(pool_size=(2, 2)),
+            #MaxPooling2D(pool_size=(2, 2)),
             # Capa 2
             Conv2D(64, activation="relu", kernel_size=(3, 3), padding="same"),
-            MaxPooling2D(pool_size=(2, 2)),
+            #MaxPooling2D(pool_size=(2, 2)),
             # Capa 3
+            Conv2D(256, activation="relu", kernel_size=(3, 3), padding="same"),
             Conv2D(128, activation="relu", kernel_size=(3, 3), padding="same"),
             MaxPooling2D(pool_size=(2, 2)),
+            Dropout(0.2),
             # Serializa(tranforma) un tensor(array)
             Flatten(),
-            Dropout(0.2),
             # Capa 6
             Dense(10, activation="softmax")
         ])
-    elif type == "deep":
+    #############################################
+    # Deep NN
+    #############################################
+    elif type == "2":
         model = Sequential([
             Input(shape=(28, 28, 1)),
             Flatten(),
@@ -217,37 +231,47 @@ def NN(x_train, y_train, x_test, y_test, type):
             # Para evitar el sobreajuste se eliminan nodos aleatoriamente
             Dropout(0.2),
             Dense(2000, activation="relu", input_dim=784),
-            # Para evitar el sobreajuste se eliminan nodos aleatoriamente
-            Dropout(0.2),
             Dense(10, activation="softmax")
         ])
-    elif type == "rnn":
+    #############################################
+    # Recurrent NN
+    #############################################
+    elif type == "3":
         model = Sequential([
             Input(shape=(28, 28)),
             SimpleRNN(1000, activation="relu", input_shape=(28, 28)),
             Dropout(0.2),
             Dense(10, activation="softmax")
         ])
-
+    #############################################
+    #############################################
     x_train = x_train.reshape(x_train.shape[0], 28, 28, 1)
     y_train = to_categorical(y_train, 10)
     x_test = x_test.reshape(x_test.shape[0], 28, 28, 1)
     y_test = to_categorical(y_test, 10)
-
+    #############################################
+    #############################################
     #Normalizacion
     x_train = x_train.astype("float32") / 255
     x_test = x_test.astype("float32") / 255
-
+    #############################################
+    #############################################
+    # Regularizacion
+    regularization = keras.callbacks.EarlyStopping(monitor="val_accuracy", patience=10)
     #sparse_categorical_crossentropy
-    model.compile(optimizer=Adam(learning_rate=0.01), loss="categorical_crossentropy", metrics=["accuracy"])
-    model.fit(x_train, y_train, epochs=20, batch_size=128, validation_split=0.1, use_multiprocessing=True, workers=16)
+    model.compile(optimizer=Adam(learning_rate=0.001), loss="categorical_crossentropy", metrics=["accuracy"])
+    hist = model.fit(x_train, y_train, epochs=30, validation_split=0.1, batch_size=100, use_multiprocessing=True, workers=16, callbacks=[regularization])
     accuracy = model.evaluate(x_test, y_test)
     y_pred = model.predict(x_test)
-    plot_results(y_pred, y_test)
-
+    plot_results(y_pred, y_test, hist)
+    #############################################
+    #############################################
     print("Accuracy: " + str(round(accuracy[1], 3)))
 
 
+#############################################
+#############################################
+#############################################
 if __name__ == "__main__":
     epocas = 5
 
@@ -266,5 +290,13 @@ if __name__ == "__main__":
 
     #print("Accuracy Train: " + str(perceptron.accuracy[len(perceptron.accuracy)-1]))
     #print("Accurary: " + str(good) + "%")
-    print(cuda.gpus)
-    NN(x_train, y_train, x_test, y_test, "cnn")
+    print("------------------------------------------------------------------")
+    print("------------------------------------------------------------------")
+    print("------------------------Practica MNIST----------------------------")
+    print("------------------------------------------------------------------")
+    print("------------------------------------------------------------------")
+    print("Selecciona una opcion:")
+    print("1.-Convolutive NN, 2.-Deep NN, 3.-Recurrent NN")
+    n = input()
+
+    NN(x_train, y_train, x_test, y_test, n)
