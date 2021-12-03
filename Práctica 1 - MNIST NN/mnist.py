@@ -185,6 +185,13 @@ def plot_results(y_pred, y_test, hist):
     plot.legend(["Train", "Test"])
     plot.show()
 
+#############################################
+#############################################
+# Conv2D 32 64 256 128 Droupout (0.4)
+# Conv2D 32 64 256  500 128 Droupout (0.5)
+#############################################
+#############################################
+#############################################
 
 def NN(x_train, y_train, x_test, y_test, type):
   #############################################
@@ -193,18 +200,20 @@ def NN(x_train, y_train, x_test, y_test, type):
     if type == "1":
         model = Sequential([
             Input(shape=(28, 28, 1)),
-            # Red neuronal convolutiva con mascara 3x3
             # Capa 1
-            Conv2D(32, activation="relu", kernel_size=(3, 3), padding="same"),
-            #MaxPooling2D(pool_size=(2, 2)),
+            # Red neuronal convolutiva con mascara 3x3
+            Conv2D(32, activation="relu", kernel_size=(3, 3)),
             # Capa 2
-            Conv2D(64, activation="relu", kernel_size=(3, 3), padding="same"),
-            #MaxPooling2D(pool_size=(2, 2)),
+            Conv2D(64, activation="relu", kernel_size=(3, 3)),
             # Capa 3
-            Conv2D(256, activation="relu", kernel_size=(3, 3), padding="same"),
-            Conv2D(128, activation="relu", kernel_size=(3, 3), padding="same"),
+            Conv2D(256, activation="relu", kernel_size=(3, 3)),
+            # Capa 4
+            Conv2D(500, activation="relu", kernel_size=(3, 3)),
+            # Capa 5
+            Conv2D(128, activation="relu", kernel_size=(3, 3)),
             MaxPooling2D(pool_size=(2, 2)),
-            Dropout(0.2),
+            # Para evitar el sobreajuste se eliminan nodos aleatoriamente
+            Dropout(0.5),
             # Serializa(tranforma) un tensor(array)
             Flatten(),
             # Capa 6
@@ -229,7 +238,7 @@ def NN(x_train, y_train, x_test, y_test, type):
             Dropout(0.2),
             Dense(1000, activation="relu", input_dim=784),
             # Para evitar el sobreajuste se eliminan nodos aleatoriamente
-            Dropout(0.2),
+            Dropout(0.5),
             Dense(2000, activation="relu", input_dim=784),
             Dense(10, activation="softmax")
         ])
@@ -260,7 +269,7 @@ def NN(x_train, y_train, x_test, y_test, type):
     regularization = keras.callbacks.EarlyStopping(monitor="val_accuracy", patience=10)
     #sparse_categorical_crossentropy
     model.compile(optimizer=Adam(learning_rate=0.001), loss="categorical_crossentropy", metrics=["accuracy"])
-    hist = model.fit(x_train, y_train, epochs=30, validation_split=0.1, batch_size=100, use_multiprocessing=True, workers=16, callbacks=[regularization])
+    hist = model.fit(x_train, y_train, epochs=40, validation_split=0.1, batch_size=100, callbacks=[regularization])
     accuracy = model.evaluate(x_test, y_test)
     y_pred = model.predict(x_test)
     plot_results(y_pred, y_test, hist)
