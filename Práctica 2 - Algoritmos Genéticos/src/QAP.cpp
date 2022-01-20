@@ -659,6 +659,21 @@ istream& operator>>(istream& is, QAP& MD) {
     return is;
 }
 
+
+void save2File(ofstream fout, pair<list<int>, int> best, int seconds, string type) {
+
+    fout << "-----------------------------------------------------" << endl;
+    fout << "-----------------------------------------------------" << endl;
+
+    fout << "Eval: " << best.second << " - seconds: " << seconds
+    << " - type: " << type << " - P_M: " << P_M << " - N_MUTATIONS: " << N_MUTATIONS
+    << " - Poblation: " << POBLATION << " - FIN: " << FIN << " - Inidividual: " << best.first << endl;
+    fout << "-----------------------------------------------------" << endl;
+    fout << "-----------------------------------------------------" << endl;
+
+}
+
+
 int main(int argc, char* argv[]) {
 
     if (argc < 2) {
@@ -683,6 +698,23 @@ int main(int argc, char* argv[]) {
 
     QAP qap;
     f >> qap;
+
+    /*list<int> poblations, mutations, fin;
+    poblations.push_back(10);
+    poblations.push_back(20);
+    poblations.push_back(40);
+    poblations.push_back(80);
+    poblations.push_back(100);
+    mutations.push_back(1);
+    mutations.push_back(2);
+    mutations.push_back(4);
+    mutations.push_back(8);
+    mutations.push_back(10);
+    fin.push_back(40);
+    fin.push_back(20);
+    fin.push_back(15);
+    fin.push_back(10);
+    fin.push_back(4);*/
 
     P_M = 0.1, N_MUTATIONS = 10, FIN = 20, POBLATION = 10, SEED = 20;
     //srand(SEED);
