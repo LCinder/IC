@@ -1,3 +1,7 @@
 *.idea*
 *data*
 Teoría/
+*.pdf
+*.zip
+*.o
+*.exe
