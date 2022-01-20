@@ -262,7 +262,7 @@ int QAP::eval(list<int> s) {
         for(int i=0; i < individual.size(); i++)
             shuffle.push_back(i);
 
-        int N_ITS = 30;
+        int N_ITS = 60;
         list<int> best = individual;
         for(int j=0; j < N_ITS; j++)  {
             //int k = Randint(0, getN());
