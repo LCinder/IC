@@ -174,7 +174,7 @@ public:
     
     list<int> permute(list<int> individual, int i, int j);
     
-    void LS (list<int>& individual);
+    pair<list<int>, int> LS (list<int> individual, stirng type);
     /**
 	 * @brief Metodo que decide que elemento escoger sabiedo que elige el elemento mas lejano entre la lista de no seleccionados con respecto a la lista de seleccionados
 	 * @param s Lista de elementos no seleccionados
@@ -204,7 +204,7 @@ public:
     list<list<int> > select(priority_queue<pair<list<int>, int>,
     vector<pair<list<int>, int> >, OrdenGenetico> poblacion);
 
-    pair<list<int>, int> GeneticAlgorithm(int fin, int poblacionSize);
+    pair<list<int>, int> GeneticAlgorithm(int fin, int poblacionSize, string type);
     
     list<int> best(list<int> &n1, list<int> &n2);
 

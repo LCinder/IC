@@ -227,8 +227,9 @@ int QAP::eval(list<int> s) {
 
 
 
-    void QAP::LS(list<int>& individual) {
+    pair<list<int>, int> QAP::LS(list<int> individual, string type) {
         list<int> neighbour;
+        int bestFitness;
         list<int>::iterator itsel, its;
         vector<int> shuffle;
         vector<int>::iterator it1, it2;
@@ -248,16 +249,29 @@ int QAP::eval(list<int> s) {
             ++it2;
         }*/
 
-       /* list<int> best = individual;
+        list<int> best = individual;
          for(int i=0; i < getN(); i++) {
              for(int j=i+1; j < getN(); j++) {
                  neighbour = permute(individual, i, j);
-                 if (eval(neighbour) < eval(individual)) {
+                 if(eval(neighbour) < eval(individual)) {
                      cout << endl << eval(neighbour);
-                     individual = neighbour;
+                     if(type == "Lamarck")
+                         individual = neighbour;
+
+                     bestFitness = eval(neighbour);
                  }
              }
-         }*/
+         }
+         /*
+         list<int> best = individual;
+                  for(int i=0; i < getN(); i++) {
+                      for(int j=i+1; j < getN(); j++) {
+                          neighbour = permute(individual, i, j);
+                          if (eval(neighbour) < eval(individual)) {
+                              cout << endl << eval(neighbour);
+                              individual = neighbour;
+                          }
+                      }
 
         for(int i=0; i < individual.size(); i++)
             shuffle.push_back(i);
@@ -276,12 +290,34 @@ int QAP::eval(list<int> s) {
                     best = neighbour;
                 ++it1; ++it2;
             }
-            if(eval(best) < eval(individual))
-                individual = best;
-        }
+            if(eval(best) < eval(individual)) {
+                if(type == "Lamarck")
+                    individual = best;
+
+                bestFitness = eval(individual);
+            }
+        }*/
          /*
 
             *********Local************
+            for(int i=0; i < individual.size(); i++)
+                shuffle.push_back(i);
+
+            do {
+                random_shuffle(shuffle.begin(), shuffle.end());
+                it1 = it2 = shuffle.begin();
+                ++it2;
+                do {
+                    neighbour = permute(individual, *it1, *it2);
+                    ++it1; ++it2;
+                } while(eval(neighbour) > eval(individual));
+
+                if(eval(neighbour) < eval(individual))
+                     individual = neighbour;
+            } while(eval(neighbour) < eval(individual));
+
+
+
             for(int i=0; i < individual.size(); i++) {
                 for(int j=i+1; j < individual.size(); j++) {
                     neighbour = permute(individual, i, j);
@@ -290,6 +326,10 @@ int QAP::eval(list<int> s) {
                  }
              }
           */
+          pair<list<int>, int> par;
+          par.first = individual;
+          par.second = bestFitness;
+          return par;
     }
     /**************************************************************************/
     /**************************************************************************/
@@ -496,7 +536,7 @@ int QAP::eval(list<int> s) {
     //reemplaza a los peores cromosomas de la poblacion
 
 
-    pair<list<int>, int> QAP::GeneticAlgorithm (int fin, int poblacionSize) {
+    pair<list<int>, int> QAP::GeneticAlgorithm (int fin, int poblacionSize, string type) {
         priority_queue<pair<list<int>, int>, vector<pair<list<int>, int> >, OrdenGenetico> poblation, aux;
         pair<list<int>, int> values;
         list<list<int>> poblationInitial = initialize(poblacionSize);
@@ -516,7 +556,7 @@ int QAP::eval(list<int> s) {
 
         for(int i=0; i < fin; i++) {
             best = poblation.top().first;
-            LS(best);
+            best = LS(best, type);
             values.first = best;
             values.second = eval(best);
             poblation.pop();
@@ -648,7 +688,7 @@ int main(int argc, char* argv[]) {
     //srand(SEED);
 
     time_point<steady_clock> ini = steady_clock::now();
-    pair<list<int>, int> best = qap.GeneticAlgorithm(FIN, POBLATION);
+    pair<list<int>, int> best = qap.GeneticAlgorithm(FIN, POBLATION, "Lamarck");
     time_point<steady_clock> fin = steady_clock::now();
     steady_clock::duration duration = fin-ini;
 
