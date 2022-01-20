@@ -10,6 +10,7 @@ from tensorflow import keras
 from keras.models import Sequential
 from tensorflow.keras.optimizers import SGD, Adam
 from keras.layers.core import Dense, Activation
+from keras.regularizers import l1, l2
 from numba import cuda
 import seaborn
 from sklearn.metrics import confusion_matrix
@@ -187,8 +188,13 @@ def plot_results(y_pred, y_test, hist):
 
 #############################################
 #############################################
-# Conv2D 32 64 256 128 Droupout (0.4)
-# Conv2D 32 64 256  500 128 Droupout (0.5)
+def write_file(res):
+  f = open("res.txt", "w")
+  f.write(str(res))
+  f.close()
+#############################################
+#############################################
+# Conv2D 32 64 256 128 Droupout (0.8) batch = 32
 #############################################
 #############################################
 #############################################
@@ -197,86 +203,98 @@ def NN(x_train, y_train, x_test, y_test, type):
   #############################################
   # Convolutive NN
   #############################################
-    if type == "1":
-        model = Sequential([
-            Input(shape=(28, 28, 1)),
-            # Capa 1
-            # Red neuronal convolutiva con mascara 3x3
-            Conv2D(32, activation="relu", kernel_size=(3, 3)),
-            # Capa 2
-            Conv2D(64, activation="relu", kernel_size=(3, 3)),
-            # Capa 3
-            Conv2D(256, activation="relu", kernel_size=(3, 3)),
-            # Capa 4
-            Conv2D(500, activation="relu", kernel_size=(3, 3)),
-            # Capa 5
-            Conv2D(128, activation="relu", kernel_size=(3, 3)),
-            MaxPooling2D(pool_size=(2, 2)),
-            # Para evitar el sobreajuste se eliminan nodos aleatoriamente
-            Dropout(0.5),
-            # Serializa(tranforma) un tensor(array)
-            Flatten(),
-            # Capa 6
-            Dense(10, activation="softmax")
-        ])
-    #############################################
-    # Deep NN
-    #############################################
-    elif type == "2":
-        model = Sequential([
-            Input(shape=(28, 28, 1)),
-            Flatten(),
-            Dense(40, activation="relu", input_dim=784),
-            # Para evitar el sobreajuste se eliminan nodos aleatoriamente
-            Dropout(0.2),
-            Dense(80, activation="relu", input_dim=784),
-            # Para evitar el sobreajuste se eliminan nodos aleatoriamente
-            Dropout(0.2),
-            MaxPooling2D(pool_size=(2, 2)),
-            Dense(500, activation="relu", input_dim=784),
-            # Para evitar el sobreajuste se eliminan nodos aleatoriamente
-            Dropout(0.2),
-            Dense(1000, activation="relu", input_dim=784),
-            # Para evitar el sobreajuste se eliminan nodos aleatoriamente
-            Dropout(0.5),
-            Dense(2000, activation="relu", input_dim=784),
-            Dense(10, activation="softmax")
-        ])
-    #############################################
-    # Recurrent NN
-    #############################################
-    elif type == "3":
-        model = Sequential([
-            Input(shape=(28, 28)),
-            SimpleRNN(1000, activation="relu", input_shape=(28, 28)),
-            Dropout(0.2),
-            Dense(10, activation="softmax")
-        ])
-    #############################################
-    #############################################
-    x_train = x_train.reshape(x_train.shape[0], 28, 28, 1)
-    y_train = to_categorical(y_train, 10)
-    x_test = x_test.reshape(x_test.shape[0], 28, 28, 1)
-    y_test = to_categorical(y_test, 10)
-    #############################################
-    #############################################
-    #Normalizacion
-    x_train = x_train.astype("float32") / 255
-    x_test = x_test.astype("float32") / 255
-    #############################################
-    #############################################
-    # Regularizacion
-    regularization = keras.callbacks.EarlyStopping(monitor="val_accuracy", patience=10)
-    #sparse_categorical_crossentropy
-    model.compile(optimizer=Adam(learning_rate=0.001), loss="categorical_crossentropy", metrics=["accuracy"])
-    hist = model.fit(x_train, y_train, epochs=40, validation_split=0.1, batch_size=100, callbacks=[regularization])
-    accuracy = model.evaluate(x_test, y_test)
-    y_pred = model.predict(x_test)
-    plot_results(y_pred, y_test, hist)
-    #############################################
-    #############################################
-    print("Accuracy: " + str(round(accuracy[1], 3)))
+  if type == "1":
+    model = Sequential([
+      Input(shape=(28, 28, 1)),
+      # Capa 1
+      # Red neuronal convolutiva con mascara 3x3
+      Conv2D(32, activation="relu", kernel_size=(3, 3)),#, kernel_regularizer=l2(0.01)),
+      # Capa 2
+      Conv2D(64, activation="relu", kernel_size=(3, 3)),#, kernel_regularizer=l2(0.01)),
+      # Capa 3
+      Conv2D(256, activation="relu", kernel_size=(3, 3)),#, kernel_regularizer=l2(0.01)),
+      # Capa 4
+      Conv2D(500, activation="relu", kernel_size=(3, 3)),# kernel_regularizer=l2(0.01)),
+      # Capa 5
+      Conv2D(128, activation="relu", kernel_size=(3, 3)),#, kernel_regularizer=l2(0.01)),
+      MaxPooling2D(pool_size=(2, 2)),
+      # Para evitar el sobreajuste se eliminan nodos aleatoriamente
+      Dropout(0.8),
+      # Serializa(tranforma) un tensor(array)
+      Flatten(),
+      # Capa 6
+      Dense(10, activation="softmax")#, kernel_regularizer=l2(0.01))
+    ])
+  #############################################
+  # Deep NN
+  #############################################
+  elif type == "2":
+    model = Sequential([
+      Input(shape=(28, 28, 1)),
+      Flatten(),
+      # Capa 1
+      #Dense(32, activation="relu", input_dim=784),
+      # Capa 2
+      Dense(64, activation="relu", input_dim=784),
+      # Capa 3
+      #Dense(256, activation="relu", input_dim=784),
+      # Capa 4
+      #Dense(500, activation="relu", input_dim=784),
+      # Capa 4
+      #Dense(784, activation="relu", input_dim=784),
+      # Capa 4
+      #Dense(200, activation="relu", input_dim=784),
+      # Capa 5
+      Dense(128, activation="relu", input_dim=784),
+      # Para evitar el sobreajuste se eliminan nodos aleatoriamente
+      Dropout(0.8),
+      Flatten(),
+      # Capa 6
+      Dense(10, activation="softmax")
+    ])
+  #############################################
+  # Recurrent NN
+  #############################################
+  elif type == "3":
+    model = Sequential([
+      Input(shape=(28, 28)),
+      SimpleRNN(64, activation="relu", input_shape=(28, 28)),
+      Dropout(0.5),
+      Dense(10, activation="softmax")
+    ])
+  #############################################
+  #############################################
+  x_train = x_train.reshape(x_train.shape[0], 28, 28, 1)
+  y_train = to_categorical(y_train, 10)
+  x_test = x_test.reshape(x_test.shape[0], 28, 28, 1)
+  y_test = to_categorical(y_test, 10)
+  #############################################
+  #############################################
+  #Normalizacion
+  x_train = x_train.astype("float32") / 255
+  x_test = x_test.astype("float32") / 255
+  #############################################
+  #############################################
+  # Regularizacion
+  regularization = keras.callbacks.EarlyStopping(monitor="val_accuracy", patience=10)
+  #sparse_categorical_crossentropy
+  model.compile(optimizer=SGD(learning_rate=0.001), loss="categorical_crossentropy", metrics=["accuracy"])
+  hist = model.fit(x_train, y_train, epochs=40, validation_split=0.1, batch_size=32, callbacks=[regularization])
+  accuracy = model.evaluate(x_test, y_test)
+  y_pred = model.predict(x_test)
+  plot_results(y_pred, y_test, hist)
+  #############################################
+  #############################################
+  print("Accuracy: " + str(round(accuracy[1], 3)))
+  #############################################
+  print("% error test: " + str(round(1.0 - accuracy[1], 3)))
 
+  #############################################
+  #############################################
+  y_pred_decode = ""
+  for i in y_pred:
+    y_pred_decode += str(numpy.argmax(i, 0))
+  write_file(y_pred_decode)
 
 #############################################
 #############################################
